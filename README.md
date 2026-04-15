@@ -4,9 +4,6 @@ Backend de **NotCloud**, una aplicación web para organizar notas, documentos y 
 
 > ⚠️ Este proyecto está en desarrollo y fue creado con fines de aprendizaje.
 
-## Vista previa
-
-![Mockup de NotCloud](./assets/mockup.png)
 
 ## ¿De qué trata?
 
