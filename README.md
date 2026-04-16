@@ -23,30 +23,4 @@ NotCloud es una plataforma de productividad personal que permite a los usuarios 
 
 Este backend sigue una **Arquitectura Limpia (Clean Architecture)**, organizada por capas para separar responsabilidades y facilitar mantenimiento, pruebas y escalabilidad.
 
-## Estructura de carpetas
 
-```text
-src/
-  domain/
-    entities/
-    repositories/
-    services/
-  application/
-    use-cases/
-    dtos/
-  infrastructure/
-    database/
-    persistence/
-    external-services/
-  interfaces/
-    http/
-      controllers/
-      routes/
-      middlewares/
-  config/
-  shared/
-    utils/
-tests/
-  unit/
-  integration/
-```
