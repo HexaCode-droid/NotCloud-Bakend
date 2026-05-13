@@ -8,6 +8,23 @@ export class User {
         public readonly updatedAt: Date,
     ) {}
 
+    static createNew(input: {
+        id: string;
+        email: string;
+        fullName: string;
+        passwordHash: string;
+        at?: Date;
+    }): User {
+        const at = input.at ?? new Date();
+        return new User(
+            input.id,
+            input.email,
+            input.fullName,
+            input.passwordHash,
+            at,
+            at,
+        );
+    }
 
     public getId(): string {
         return this.id;
