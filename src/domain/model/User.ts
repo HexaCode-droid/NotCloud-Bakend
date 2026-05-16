@@ -16,13 +16,24 @@ export class User {
         at?: Date;
     }): User {
         const at = input.at ?? new Date();
+        return new User(input.id, input.email, input.fullName, input.passwordHash, at, at);
+    }
+
+    static restore(input: {
+        id: string;
+        email: string;
+        fullName: string;
+        passwordHash: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }): User {
         return new User(
             input.id,
             input.email,
             input.fullName,
             input.passwordHash,
-            at,
-            at,
+            input.createdAt,
+            input.updatedAt,
         );
     }
 

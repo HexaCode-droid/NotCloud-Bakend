@@ -4,3 +4,7 @@ build/
 .env
 coverage/
 .DS_Store
+.pnpm-store/
+package-lock.json
+npm-debug.log*
+

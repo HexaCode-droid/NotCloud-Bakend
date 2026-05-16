@@ -10,6 +10,7 @@ import type { PasswordHasher } from "../../domain/port/out/PasswordHasher";
 import type { TokenGeneratorPort } from "../../domain/port/out/TokenGeneratorPort";
 import type { UserRepository } from "../../domain/port/out/UserRepository";
 import { ExisteUserException } from "../exception/ExisteUserException";
+import { AppConfigService } from "../../config/app-config.service";
 
 export const USER_REPOSITORY = "UserRepository";
 export const PASSWORD_HASHER = "PasswordHasher";
@@ -24,6 +25,7 @@ export class RegisterUseCaseService implements RegisterUseCase {
         private readonly passwordHasher: PasswordHasher,
         @Inject(TOKEN_GENERATOR)
         private readonly tokenGenerator: TokenGeneratorPort,
+        private readonly appConfig: AppConfigService,
     ) {}
 
     async execute(command: RegisterCommand): Promise<RegisterSuccess> {
@@ -54,7 +56,7 @@ export class RegisterUseCaseService implements RegisterUseCase {
         return {
             token,
             RefreshToken,
-            expiresIn: 100,
+            expiresIn: this.appConfig.jwt.expiresInSeconds,
         };
     }
 }
