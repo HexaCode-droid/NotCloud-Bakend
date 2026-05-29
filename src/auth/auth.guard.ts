@@ -34,7 +34,7 @@ export class AuthGuard implements CanActivate {
       // Verificamos que el token sea válido y no haya expirado.
       // Si el token es inválido o fue firmado con un secreto diferente, lanza un error.
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET || 'super-secret',
+        secret: process.env.JWT_SECRET,
       });
 
       // Si el token es válido, guardamos su "payload" (id y email del usuario)
