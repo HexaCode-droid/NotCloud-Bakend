@@ -23,7 +23,26 @@ async function bootstrap() {
     ],
   });
 
-  app.enableCors(); // Opcional: útil si vas a consumir la API desde un frontend distinto
-  await app.listen(process.env.PORT ?? 3000);
+  app.enableCors(); 
+  
+  await app.init();
+  return app;
 }
-bootstrap();
+
+let cachedServer: any;
+
+export default async function handler(req: any, res: any) {
+  if (!cachedServer) {
+    const app = await bootstrap();
+    cachedServer = app.getHttpAdapter().getInstance();
+  }
+  return cachedServer(req, res);
+}
+
+if (!process.env.VERCEL) {
+  bootstrap().then((app) => {
+    app.listen(process.env.PORT ?? 3000, () => {
+      console.log(`Server is running on port ${process.env.PORT ?? 3000}`);
+    });
+  });
+}
