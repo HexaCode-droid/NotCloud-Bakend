@@ -50,6 +50,13 @@ export class PageController {
     return this.pageService.findArchived(req.user.sub);
   }
 
+  @Get('recent')
+  @ApiOperation({ summary: 'Obtener las páginas editadas recientemente' })
+  @ApiResponse({ status: 200, description: 'Lista de páginas recientes' })
+  findRecent(@Request() req: any) {
+    return this.pageService.findRecent(req.user.sub);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una página por su ID (con bloques y sub-páginas)' })
   @ApiResponse({ status: 200, description: 'Página encontrada' })

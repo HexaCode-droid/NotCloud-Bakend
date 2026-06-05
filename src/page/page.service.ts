@@ -124,6 +124,26 @@ export class PageService {
     });
   }
 
+  // Retorna las páginas recientes (raíz o sub-páginas)
+  async findRecent(userId: string) {
+    return this.prisma.page.findMany({
+      where: {
+        userId,
+        isArchived: false,
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 10,
+      select: {
+        id: true,
+        title: true,
+        icon: true,
+        isFavorite: true,
+        parentPageId: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   // Actualiza los datos de una página
   async update(userId: string, id: string, updatePageDto: UpdatePageDto) {
     await this.findOne(userId, id); // Verifica existencia y permisos
