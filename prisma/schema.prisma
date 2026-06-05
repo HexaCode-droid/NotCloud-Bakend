@@ -26,4 +26,53 @@ model User {
 
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
+
+  pages                     Page[]
+}
+
+model Page {
+  id  String @id @default(uuid())
+  title String @default("Sin título")
+  icon  String? // Esto es el emoji que se le va a poner a cada pagina
+  cover String?
+  isFavorite  Boolean @default(false)
+  isArchived  Boolean @default(false) // Todo: Implementar papelera (despues)
+
+  userId  String
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  parentPageId String?
+  parentPage   Page?   @relation("PageToSubPages", fields: [parentPageId], references: [id], onDelete: Cascade)
+
+  subPages Page[] @relation("PageToSubPages")
+
+  // Relacion: Una pagina puede contener muchos bloques de contenido
+  blocks  Block[]
+
+  // Metadatos
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Block {
+  id String @id @default(uuid())
+  type BlockType
+  content String?
+  order Int
+
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum BlockType {
+  TEXT
+  H1
+  H2
+  H3
+  TODO
+  IMAGE
+  CODE
 }
