@@ -3,9 +3,10 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PageModule } from './page/page.module';
+import { BlockModule } from './block/block.module';
 
 
 @Module({
-  imports: [UserModule, AuthModule, PrismaModule, PageModule],
+  imports: [UserModule, AuthModule, PrismaModule, PageModule, BlockModule],
 })
 export class AppModule { }
