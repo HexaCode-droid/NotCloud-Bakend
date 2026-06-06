@@ -19,6 +19,12 @@ export class UserService {
     });
   }
 
+  async findByResetToken(token: string) {
+    return this.prisma.user.findUnique({
+      where: { resetPasswordToken: token },
+    });
+  }
+
   async findOne(id: string) {
     return this.prisma.user.findUnique({
       where: { id },

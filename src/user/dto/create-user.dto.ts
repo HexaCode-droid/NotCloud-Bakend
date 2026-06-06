@@ -3,6 +3,8 @@ export class CreateUserDto {
   password!: string;
   name?: string;
   isVerified?: boolean;
-  verificationCode?: string;
-  verificationCodeExpiresAt?: Date;
+  verificationCode?: string | null;
+  verificationCodeExpiresAt?: Date | null;
+  resetPasswordToken?: string | null;
+  resetPasswordExpires?: Date | null;
 }

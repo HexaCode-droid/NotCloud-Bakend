@@ -5,7 +5,10 @@ import { UserService } from '../user/user.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -140,8 +143,8 @@ export class AuthService {
 
     await this.usersService.update(user.id, {
       isVerified: true,
-      verificationCode: null as unknown as string,
-      verificationCodeExpiresAt: null as unknown as Date,
+      verificationCode: null,
+      verificationCodeExpiresAt: null,
     });
 
     const payload = { sub: user.id, email: user.email };
@@ -149,5 +152,101 @@ export class AuthService {
       message: 'Email successfully verified.',
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+
+    const user = await this.usersService.findByEmail(email);
+
+    // Respuesta genérica para no revelar si el email existe o no
+    if (!user) {
+      return { message: 'If that email exists, a reset link has been sent.' };
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date();
+    expires.setMinutes(expires.getMinutes() + 15);
+
+    await this.usersService.update(user.id, {
+      resetPasswordToken: token,
+      resetPasswordExpires: expires,
+    });
+
+    const resetUrl = `${process.env.FRONTEND_URL ?? 'http://localhost:5173'}/auth/reset-password?token=${token}`;
+
+    const emailHtml = `
+      <div style="font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; padding: 50px 20px; color: #334155;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
+          <!-- Header -->
+          <div style="padding: 40px 20px; text-align: center; border-bottom: 1px solid #f3f4f6;">
+            <h1 style="margin: 0; color: #000000; font-size: 34px; font-weight: 800; letter-spacing: -0.5px;">NotCloud</h1>
+          </div>
+
+          <!-- Body -->
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #1f2937; font-size: 24px; font-weight: 700; text-align: center; margin-top: 0; margin-bottom: 20px;">¿Olvidaste tu contraseña?</h2>
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 35px;">
+              Recibimos una solicitud para restablecer la contraseña de tu cuenta. Haz clic en el botón de abajo para crear una nueva contraseña.
+            </p>
+
+            <!-- Button -->
+            <div style="text-align: center; margin: 0 auto;">
+              <a href="${resetUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-size: 16px; font-weight: 700; padding: 14px 32px; border-radius: 10px; text-decoration: none; letter-spacing: 0.3px;">Restablecer contraseña</a>
+            </div>
+
+            <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 35px;">
+              Este enlace es válido por los próximos <strong>15 minutos</strong>.<br>
+              Si no solicitaste esto, puedes ignorar este correo de forma segura.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f9fafb; padding: 25px; text-align: center; border-top: 1px solid #e5e7eb;">
+            <p style="color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 0;">
+              © 2026 NotCloud. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    try {
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Restablece tu contraseña de NotCloud',
+        text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}. Expira en 15 minutos.`,
+        html: emailHtml,
+      });
+    } catch (error) {
+      console.error('Error sending reset password email', error);
+    }
+
+    return { message: 'If that email exists, a reset link has been sent.' };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { token, newPassword } = resetPasswordDto;
+
+    const user = await this.usersService.findByResetToken(token);
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    if (user.resetPasswordExpires && user.resetPasswordExpires < new Date()) {
+      throw new BadRequestException('Reset token has expired');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await this.usersService.update(user.id, {
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpires: null,
+    });
+
+    return { message: 'Password successfully reset. You can now log in.' };
   }
 }
