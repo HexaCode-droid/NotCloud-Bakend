@@ -2,16 +2,10 @@
   "version": 2,
   "buildCommand": "prisma generate && nest build",
   "installCommand": "npm install",
-  "builds": [
+  "rewrites": [
     {
-      "src": "dist/src/main.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/src/main.js"
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ]
 }
