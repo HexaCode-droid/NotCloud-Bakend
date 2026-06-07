@@ -7,6 +7,7 @@ import { PageModule } from './page/page.module';
 import { BlockModule } from './block/block.module';
 import { SettingsModule } from './settings/settings.module';
 import { RemindersModule } from './reminders/reminders.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RemindersModule } from './reminders/reminders.module';
     BlockModule,
     SettingsModule,
     RemindersModule,
+    AiModule,
   ],
 })
 export class AppModule {}
