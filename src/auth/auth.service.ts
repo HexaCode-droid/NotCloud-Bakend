@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException, BadRequestExcepti
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UserService } from '../user/user.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -15,8 +16,9 @@ export class AuthService {
   constructor(
     private usersService: UserService,
     private jwtService: JwtService,
-    private mailerService: MailerService
-  ) { }
+    private mailerService: MailerService,
+    private prisma: PrismaService,
+  ) {}
 
   async register(createAuthDto: CreateAuthDto) {
     const { email, password, name } = createAuthDto;
@@ -41,6 +43,10 @@ export class AuthService {
       isVerified: false,
       verificationCode,
       verificationCodeExpiresAt,
+    });
+
+    await this.prisma.userSettings.create({
+      data: { userId: user.id },
     });
 
     const emailHtml = `

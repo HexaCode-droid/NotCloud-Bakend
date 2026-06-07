@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider   = "prisma-client-js"
   engineType = "library"
@@ -14,12 +9,31 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum Theme {
+  LIGHT
+  DARK
+  OCEAN
+  FOREST
+  SUNSET
+  LAVENDER
+}
+
+enum BlockType {
+  TEXT
+  H1
+  H2
+  H3
+  TODO
+  IMAGE
+  CODE
+}
+
 model User {
   id                        String    @id @default(uuid())
   email                     String    @unique
   password                  String
   name                      String?
-  
+
   isVerified                Boolean   @default(false)
   verificationCode          String?
   verificationCodeExpiresAt DateTime?
@@ -31,6 +45,76 @@ model User {
   updatedAt                 DateTime  @updatedAt
 
   pages                     Page[]
+<<<<<<< HEAD
+=======
+  settings                  UserSettings?
+  reminders                 Reminder[]
+}
+
+model UserSettings {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  theme     Theme  @default(LIGHT)
+  locale    String @default("es-ES")
+  timezone  String @default("Europe/Madrid")
+
+  emailNotifications    Boolean @default(true)
+  browserNotifications  Boolean @default(true)
+  reminderNotifications Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reminder {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  remindAt    DateTime
+  emailNotified   Boolean @default(false)
+  browserNotified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Page {
+  id         String  @id @default(uuid())
+  title      String  @default("Sin título")
+  icon       String?
+  cover      String?
+  isFavorite Boolean @default(false)
+  isArchived Boolean @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  parentPageId String?
+  parentPage   Page?  @relation("PageToSubPages", fields: [parentPageId], references: [id], onDelete: Cascade)
+  subPages     Page[] @relation("PageToSubPages")
+  blocks       Block[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Block {
+  id      String    @id @default(uuid())
+  type    BlockType
+  content String?
+  order   Int
+
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+>>>>>>> 2e7c78e (feat: implement reminders module with scheduler and settings management module)
 }
 
 model Page {
