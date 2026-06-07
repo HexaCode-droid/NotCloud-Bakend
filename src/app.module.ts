@@ -4,14 +4,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
-<<<<<<< HEAD
 import { PageModule } from './page/page.module';
 import { BlockModule } from './block/block.module';
-
-
-@Module({
-  imports: [UserModule, AuthModule, PrismaModule, PageModule, BlockModule],
-=======
 import { SettingsModule } from './settings/settings.module';
 import { RemindersModule } from './reminders/reminders.module';
 
@@ -34,9 +28,10 @@ import { RemindersModule } from './reminders/reminders.module';
     PrismaModule,
     UserModule,
     AuthModule,
+    PageModule,
+    BlockModule,
     SettingsModule,
     RemindersModule,
   ],
->>>>>>> 2e7c78e (feat: implement reminders module with scheduler and settings management module)
 })
 export class AppModule {}
