@@ -39,7 +39,7 @@ model Page {
   icon  String? // Esto es el emoji que se le va a poner a cada pagina
   cover String?
   isFavorite  Boolean @default(false)
-  isArchived  Boolean @default(false) // Todo: Implementar papelera (despues)
+  isArchived  Boolean @default(false)
 
   userId  String
   user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
