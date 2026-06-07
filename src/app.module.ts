@@ -1,12 +1,42 @@
 import { Module } from '@nestjs/common';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { ScheduleModule } from '@nestjs/schedule';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
+<<<<<<< HEAD
 import { PageModule } from './page/page.module';
 import { BlockModule } from './block/block.module';
 
 
 @Module({
   imports: [UserModule, AuthModule, PrismaModule, PageModule, BlockModule],
+=======
+import { SettingsModule } from './settings/settings.module';
+import { RemindersModule } from './reminders/reminders.module';
+
+@Module({
+  imports: [
+    ScheduleModule.forRoot(),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.SMTP_HOST || 'smtp.example.com',
+        port: Number(process.env.SMTP_PORT) || 587,
+        auth: {
+          user: process.env.SMTP_USER || 'user@example.com',
+          pass: process.env.SMTP_PASS || 'password',
+        },
+      },
+      defaults: {
+        from: '"NotCloud" <noreply@notcloud.app>',
+      },
+    }),
+    PrismaModule,
+    UserModule,
+    AuthModule,
+    SettingsModule,
+    RemindersModule,
+  ],
+>>>>>>> 2e7c78e (feat: implement reminders module with scheduler and settings management module)
 })
-export class AppModule { }
+export class AppModule {}
