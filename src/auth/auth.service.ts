@@ -21,7 +21,8 @@ export class AuthService {
   ) {}
 
   async register(createAuthDto: CreateAuthDto) {
-    const { email, password, name } = createAuthDto;
+    const email = createAuthDto.email.trim().toLowerCase();
+    const { password, name } = createAuthDto;
 
     const existingUser = await this.usersService.findByEmail(email);
 
@@ -104,7 +105,8 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
+    const email = loginDto.email.trim().toLowerCase();
+    const { password } = loginDto;
 
     const user = await this.usersService.findByEmail(email);
     if (!user) {
