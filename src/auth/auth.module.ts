@@ -4,10 +4,13 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
+import { AuthGuard } from './auth.guard';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
     UserModule,
+    PrismaModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -23,11 +26,12 @@ import { UserModule } from '../user/user.module';
         },
       },
       defaults: {
-        from: '"No Reply" <noreply@example.com>',
+        from: '"NotCloud" <noreply@notcloud.app>',
       },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthGuard],
+  exports: [AuthService, AuthGuard, JwtModule],
 })
 export class AuthModule {}
