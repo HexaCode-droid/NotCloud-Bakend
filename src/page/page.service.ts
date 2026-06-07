@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   ForbiddenException,
@@ -146,7 +147,23 @@ export class PageService {
 
   // Actualiza los datos de una página
   async update(userId: string, id: string, updatePageDto: UpdatePageDto) {
-    await this.findOne(userId, id); // Verifica existencia y permisos
+    await this.findOne(userId, id);
+
+    if (updatePageDto.isArchived === true) {
+      const descendantIds = await this.collectDescendantIds(id);
+      const { isArchived: _isArchived, ...rest } = updatePageDto;
+
+      await this.prisma.page.updateMany({
+        where: { id: { in: [id, ...descendantIds] }, userId },
+        data: {
+          ...rest,
+          isArchived: true,
+          isFavorite: false,
+        },
+      });
+
+      return this.prisma.page.findUnique({ where: { id } });
+    }
 
     return this.prisma.page.update({
       where: { id },
@@ -154,14 +171,36 @@ export class PageService {
     });
   }
 
-  // Elimina permanentemente una página y todo su contenido (cascade en Prisma)
+  // Elimina permanentemente una página (solo si está en la papelera)
   async remove(userId: string, id: string) {
-    await this.findOne(userId, id); // Verifica existencia y permisos
+    const page = await this.findOne(userId, id);
+
+    if (!page.isArchived) {
+      throw new BadRequestException(
+        'La página debe estar en la papelera para eliminarla permanentemente',
+      );
+    }
 
     await this.prisma.page.delete({
       where: { id },
     });
 
-    return { message: `Página eliminada correctamente` };
+    return { message: 'Página eliminada permanentemente' };
+  }
+
+  private async collectDescendantIds(pageId: string): Promise<string[]> {
+    const children = await this.prisma.page.findMany({
+      where: { parentPageId: pageId },
+      select: { id: true },
+    });
+
+    const descendantIds: string[] = [];
+
+    for (const child of children) {
+      descendantIds.push(child.id);
+      descendantIds.push(...(await this.collectDescendantIds(child.id)));
+    }
+
+    return descendantIds;
   }
 }
